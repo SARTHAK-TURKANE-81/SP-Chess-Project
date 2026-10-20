@@ -1,1 +1,0 @@
-# SP-Chess-Project
