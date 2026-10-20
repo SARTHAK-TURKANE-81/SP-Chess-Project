@@ -1,0 +1,158 @@
+# ♚ Terminal Chess
+
+A two-player chess game that runs entirely in the terminal, with Unicode piece icons on a coloured board.
+Written in Python 3 with no external libraries.
+
+![Demo of a full game](docs/demo.gif)
+
+> Full game demo (Scholar's Mate): [docs/demo.mp4](docs/demo.mp4)
+
+---
+
+## Table of Contents
+1. [Features](#features)
+2. [How to Run](#how-to-run)
+3. [How to Play](#how-to-play)
+4. [Screenshots](#screenshots)
+5. [Code Structure](#code-structure)
+6. [How the Rules Are Checked](#how-the-rules-are-checked)
+7. [Data Storage](#data-storage)
+8. [Project Files](#project-files)
+9. [Known Limitations](#known-limitations)
+10. [Possible Bonus Ideas](#possible-bonus-ideas)
+
+---
+
+## Features
+
+| Feature | Details |
+|---|---|
+| Piece icons | ♚ ♛ ♜ ♝ ♞ ♟ on a coloured board (white pieces vs black pieces) |
+| Menu-driven | New Game, Load Game, How to Play, Piece Style toggle, Exit |
+| Full move rules | Pawn, knight, bishop, rook, queen and king |
+| Check detection | Shows **CHECK!** and rejects moves that leave your own king in check |
+| Game end | Detects **checkmate** and **stalemate** |
+| Special moves | Castling (both sides) and pawn promotion |
+| Save / Load | Game saved to `chess_save.json` and loaded later |
+| Helpers | `moves e2` shows legal moves, `history`, `resign`, `help` |
+| Letter mode | Switch to plain letters if your terminal cannot show icons |
+| Input validation | Wrong input never crashes the program |
+
+## How to Run
+
+Requirements: **Python 3.8+** and a terminal with colour and Unicode support
+(Windows Terminal, VS Code terminal, macOS Terminal, most Linux terminals).
+
+```bash
+python chess.py
+```
+
+If the icons look broken (for example old Windows `cmd`), choose **4. Piece Style** in the menu to switch to letters.
+
+## How to Play
+
+White moves first. Type the square you move **from** and the square you move **to**.
+
+| Input | Action |
+|---|---|
+| `e2e4` or `e2 e4` | Move the piece on e2 to e4 |
+| `moves e2` | Show all legal moves for the piece on e2 |
+| `history` | Show all moves played so far |
+| `save` | Save the game |
+| `resign` | Current player gives up |
+| `menu` | Back to the main menu (asks to save) |
+| `help` | Show the command list |
+
+- **Castling:** move the king two squares, for example `e1g1` (king side) or `e1c1` (queen side).
+- **Promotion:** when a pawn reaches the last row, choose `q`, `r`, `b` or `n`.
+- **Colours:** white pieces are the white icons, black pieces are the black icons.
+- **Letter mode:** UPPERCASE = White, lowercase = Black.
+
+## Screenshots
+
+### Main menu
+![Main menu](docs/01_main_menu.png)
+
+### Starting a new game
+![New game](docs/02_new_game.png)
+
+### Showing legal moves with `moves e2`
+![Legal moves](docs/03_legal_moves.png)
+
+### Illegal move is rejected
+![Illegal move](docs/04_illegal_move.png)
+
+### Check
+White's bishop on b5 gives check, so Black must answer it.
+
+![Check](docs/05_check.png)
+
+### Castling
+White castled king side (`e1g1`): the king is on g1 and the rook on f1.
+
+![Castling](docs/06_castling.png)
+
+### Letter mode (for terminals without icon support)
+![Letter mode](docs/07_letter_mode.png)
+
+### Checkmate
+![Checkmate](docs/08_checkmate.png)
+
+## Code Structure
+
+| Function | Purpose |
+|---|---|
+| `new_game`, `save_game`, `load_game` | Game state and JSON file handling |
+| `show_board`, `square_name`, `parse_square` | Display (icons / letters) and coordinate conversion |
+| `pseudo_moves` | Moves of each piece, ignoring check |
+| `attacked`, `in_check` | Is a square or a king under attack? |
+| `make_move` | Returns a **new** board after a move (castling, promotion) |
+| `legal_moves`, `all_legal` | Keeps only moves that do not leave the king in check; adds castling |
+| `apply_move` | Plays a move on the real game, updates castling rights and history |
+| `show_help`, `play`, `main` | Help text, game loop and main menu |
+
+## How the Rules Are Checked
+
+1. `pseudo_moves` lists where a piece can go by its movement pattern.
+2. `legal_moves` tries each move on a **copy** of the board. If your own king is attacked afterwards, the move is thrown away.
+3. If the side to move has **no legal moves**:
+   - king in check means **checkmate**
+   - king not in check means **stalemate**
+4. Castling is allowed only if the king and rook have not moved, the squares between are empty, and the king is not in check and does not pass through or land on an attacked square.
+
+## Data Storage
+
+The game is stored as JSON in `chess_save.json`:
+
+```json
+{
+  "board": [["r","n","b","q","k","b","n","r"], "... 8 rows ..."],
+  "turn": "w",
+  "castle": "KQkq",
+  "history": ["e2e4", "e7e5"]
+}
+```
+
+`.` means an empty square. The save file is deleted when a game finishes.
+
+## Project Files
+
+```
+chess.py        the game (single file)
+README.md       this documentation
+docs/           screenshots, demo.gif and demo.mp4
+```
+
+The screenshots and the demo were generated by running the real `chess.py` with scripted input.
+
+## Known Limitations
+
+- En passant is not implemented
+- No draw by repetition, 50-move rule or insufficient material
+- Two human players only (no computer opponent)
+
+## Possible Bonus Ideas
+
+- Computer opponent that plays a random legal move
+- En passant
+- Captured pieces list and move numbers
